@@ -1,11 +1,15 @@
+
 import { ThemeProvider } from '@mui/material/styles';
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Container, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import MainLayout from './layouts/MainLayout.jsx';
 import theme from './theme/index.js';
 import WeatherDashboard from './components/WeatherDashboard.jsx';
 import useWeatherForecast from './hooks/useWeatherForecast.js';
+import { useState } from 'react';
+import cities from './constants/cities.js';
 
 export default function App() {
+  const [selectedCity, setSelectedCity] = useState(cities[0].value);
   const { forecast, metrics, isLoading, error } = useWeatherForecast();
 
   return (
@@ -20,7 +24,22 @@ export default function App() {
               此儀表板使用 Berry Admin 風格設計，並串接後端 ASP.NET Core OpenWeatherApi 的範例資料。
             </Typography>
           </Box>
-          <WeatherDashboard forecast={forecast} metrics={metrics} isLoading={isLoading} error={error} />
+          <Box sx={{ mb: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="city-select-label">選擇城市</InputLabel>
+              <Select
+                labelId="city-select-label"
+                value={selectedCity}
+                label="選擇城市"
+                onChange={e => setSelectedCity(e.target.value)}
+              >
+                {cities.map(city => (
+                  <MenuItem key={city.value} value={city.value}>{city.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <WeatherDashboard forecast={forecast} metrics={metrics} isLoading={isLoading} error={error} selectedCity={selectedCity} />
         </Container>
       </MainLayout>
     </ThemeProvider>

@@ -35,25 +35,37 @@ MetricCard.defaultProps = {
   suffix: ''
 };
 
+
 const forecastItemPropType = PropTypes.shape({
   date: PropTypes.string.isRequired,
   summary: PropTypes.string,
   temperatureC: PropTypes.number.isRequired,
-  temperatureF: PropTypes.number.isRequired
+  temperatureF: PropTypes.number.isRequired,
+  icon: PropTypes.string // 新增 icon 欄位
 });
+
 
 function ForecastRow({ item }) {
   return (
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: '1fr 150px 150px',
+        gridTemplateColumns: '1fr 60px 150px 150px',
         alignItems: 'center',
         py: 2,
         px: 3
       }}
     >
       <Typography variant="subtitle1">{new Date(item.date).toLocaleDateString()}</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        {item.icon ? (
+          <img
+            src={`https://openweathermap.org/img/wn/${item.icon}@2x.png`}
+            alt="weather icon"
+            style={{ width: 40, height: 40 }}
+          />
+        ) : null}
+      </Box>
       <Typography variant="body1">{item.temperatureC}°C / {item.temperatureF}°F</Typography>
       <Typography variant="body2" color="text.secondary">
         {item.summary}
@@ -66,7 +78,7 @@ ForecastRow.propTypes = {
   item: forecastItemPropType.isRequired
 };
 
-export default function WeatherDashboard({ forecast, metrics, isLoading, error }) {
+export default function WeatherDashboard({ forecast, metrics, isLoading, error, selectedCity }) {
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -139,9 +151,11 @@ WeatherDashboard.propTypes = {
     lowestC: PropTypes.number.isRequired
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  error: PropTypes.string
+  error: PropTypes.string,
+  selectedCity: PropTypes.string
 };
 
 WeatherDashboard.defaultProps = {
-  error: null
+  error: null,
+  selectedCity: ''
 };
