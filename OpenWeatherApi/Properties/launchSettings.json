@@ -13,7 +13,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7218;http://localhost:5218",
+      "applicationUrl": "https://silver-capybara-wxjw6j7vjvj25j4p-5218.app.github.dev;http://localhost:5218;https://localhost:7218",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

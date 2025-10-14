@@ -12,10 +12,12 @@ public class WeatherForecastController : ControllerBase
     ];
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly Services.OpenWeatherService _openWeatherService;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, Services.OpenWeatherService openWeatherService)
     {
         _logger = logger;
+        _openWeatherService = openWeatherService;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
@@ -28,5 +30,15 @@ public class WeatherForecastController : ControllerBase
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    // 新增：串接 openweathermap.org 查詢指定城市天氣
+    [HttpGet("current/{city}")]
+    public async Task<IActionResult> GetCurrentWeather(string city)
+    {
+        var weather = await _openWeatherService.GetCurrentWeatherAsync(city);
+        if (weather == null)
+            return NotFound();
+        return Ok(weather);
     }
 }
