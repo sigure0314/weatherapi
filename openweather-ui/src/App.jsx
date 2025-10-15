@@ -5,12 +5,31 @@ import MainLayout from './layouts/MainLayout.jsx';
 import theme from './theme/index.js';
 import WeatherDashboard from './components/WeatherDashboard.jsx';
 import useWeatherForecast from './hooks/useWeatherForecast.js';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import cities from './constants/cities.js';
+import { get } from './utils/apiClient.js';
 
 export default function App() {
   const [selectedCity, setSelectedCity] = useState(cities[0].value);
   const { forecast, metrics, isLoading, error } = useWeatherForecast();
+  const [currentWeather, setCurrentWeather] = useState(null);
+  const [isLoadingCurrent, setIsLoadingCurrent] = useState(false);
+  const [errorCurrent, setErrorCurrent] = useState(null);
+
+  const handleCityChange = useCallback(async (e) => {
+    const value = e.target.value;
+    setSelectedCity(value);
+    try {
+      setIsLoadingCurrent(true);
+      setErrorCurrent(null);
+      const data = await get(`/WeatherForecast/current/${encodeURIComponent(value)}`);
+      setCurrentWeather(data);
+    } catch (err) {
+      setErrorCurrent(err?.message || 'Load current weather failed');
+    } finally {
+      setIsLoadingCurrent(false);
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -31,7 +50,7 @@ export default function App() {
                 labelId="city-select-label"
                 value={selectedCity}
                 label="選擇城市"
-                onChange={e => setSelectedCity(e.target.value)}
+                onChange={handleCityChange}
               >
                 {cities.map(city => (
                   <MenuItem key={city.value} value={city.value}>{city.label}</MenuItem>
