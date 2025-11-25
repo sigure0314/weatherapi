@@ -16,8 +16,8 @@ WORKDIR /src
 COPY . .
 
 # If your csproj is inside /backend:
-RUN dotnet restore ./OpenWeatherApi/OpenWeatherApi.csproj
-RUN dotnet publish ./OpenWeatherApi/OpenWeatherApi.csproj -c Release -o /app/publish
+RUN dotnet restore OpenWeatherApi.csproj
+RUN dotnet publish OpenWeatherApi.csproj -c Release -o /app/publish
 
 # =============================
 # 3. Final Image
