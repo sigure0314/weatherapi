@@ -5,7 +5,7 @@ import MainLayout from './layouts/MainLayout.jsx';
 import theme from './theme/index.js';
 import WeatherDashboard from './components/WeatherDashboard.jsx';
 import useWeatherForecast from './hooks/useWeatherForecast.js';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import cities from './constants/cities.js';
 import { get } from './utils/apiClient.js';
 
@@ -16,20 +16,38 @@ export default function App() {
   const [isLoadingCurrent, setIsLoadingCurrent] = useState(false);
   const [errorCurrent, setErrorCurrent] = useState(null);
 
-  const handleCityChange = useCallback(async (e) => {
-    const value = e.target.value;
-    setSelectedCity(value);
-    try {
-      setIsLoadingCurrent(true);
-      setErrorCurrent(null);
-      const data = await get(`/WeatherForecast/current/${encodeURIComponent(value)}`);
-      setCurrentWeather(data);
-    } catch (err) {
-      setErrorCurrent(err?.message || 'Load current weather failed');
-    } finally {
-      setIsLoadingCurrent(false);
-    }
+  const handleCityChange = useCallback((e) => {
+    setSelectedCity(e.target.value);
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCurrentWeather = async () => {
+      try {
+        setIsLoadingCurrent(true);
+        setErrorCurrent(null);
+        const data = await get(`/WeatherForecast/current/${encodeURIComponent(selectedCity)}`);
+        if (isMounted) {
+          setCurrentWeather(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setErrorCurrent(err?.message || 'Load current weather failed');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingCurrent(false);
+        }
+      }
+    };
+
+    fetchCurrentWeather();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCity]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -58,7 +76,16 @@ export default function App() {
               </Select>
             </FormControl>
           </Box>
-          <WeatherDashboard forecast={forecast} metrics={metrics} isLoading={isLoading} error={error} selectedCity={selectedCity} />
+          <WeatherDashboard
+            forecast={forecast}
+            metrics={metrics}
+            isLoading={isLoading}
+            error={error}
+            selectedCity={selectedCity}
+            currentWeather={currentWeather}
+            isLoadingCurrent={isLoadingCurrent}
+            errorCurrent={errorCurrent}
+          />
         </Container>
       </MainLayout>
     </ThemeProvider>
