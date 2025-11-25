@@ -11,7 +11,7 @@ import { get } from './utils/apiClient.js';
 
 export default function App() {
   const [selectedCity, setSelectedCity] = useState(cities[0].value);
-  const { forecast, metrics, isLoading, error } = useWeatherForecast();
+  const { forecast, metrics, isLoading, error } = useWeatherForecast(selectedCity);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [isLoadingCurrent, setIsLoadingCurrent] = useState(false);
   const [errorCurrent, setErrorCurrent] = useState(null);

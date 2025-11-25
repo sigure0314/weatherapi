@@ -41,4 +41,16 @@ public class WeatherForecastController : ControllerBase
             return NotFound();
         return Ok(weather);
     }
+
+    [HttpGet("forecast/{city}")]
+    public async Task<IActionResult> GetForecast(string city)
+    {
+        var forecast = await _openWeatherService.GetFiveDayForecastAsync(city);
+        if (forecast == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(forecast);
+    }
 }

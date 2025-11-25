@@ -6,11 +6,12 @@ function parseForecast(data = []) {
     date: item.date,
     summary: item.summary,
     temperatureC: item.temperatureC,
-    temperatureF: item.temperatureF
+    temperatureF: item.temperatureF,
+    icon: item.icon
   }));
 }
 
-export default function useWeatherForecast() {
+export default function useWeatherForecast(city) {
   const [forecast, setForecast] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +19,9 @@ export default function useWeatherForecast() {
   useEffect(() => {
     let isMounted = true;
 
-    get('/weatherforecast')
+    setIsLoading(true);
+
+    get(`/WeatherForecast/forecast/${encodeURIComponent(city)}`)
       .then((data) => {
         if (isMounted) {
           setForecast(parseForecast(data));
@@ -39,7 +42,7 @@ export default function useWeatherForecast() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [city]);
 
   const metrics = useMemo(() => {
     if (!forecast.length) {
