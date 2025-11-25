@@ -78,7 +78,83 @@ ForecastRow.propTypes = {
   item: forecastItemPropType.isRequired
 };
 
-export default function WeatherDashboard({ forecast, metrics, isLoading, error, selectedCity }) {
+function CurrentWeatherCard({ selectedCity, currentWeather, isLoadingCurrent, errorCurrent }) {
+  return (
+    <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography variant="h4" gutterBottom>
+          當前天氣 - {selectedCity}
+        </Typography>
+        {isLoadingCurrent ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={24} />
+            <Typography variant="body2" color="text.secondary">
+              正在更新 {selectedCity} 的天氣資料...
+            </Typography>
+          </Box>
+        ) : errorCurrent ? (
+          <Typography variant="body2" color="error">
+            {errorCurrent}
+          </Typography>
+        ) : currentWeather ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            {currentWeather.icon ? (
+              <img
+                src={`https://openweathermap.org/img/wn/${currentWeather.icon}@2x.png`}
+                alt="weather icon"
+                style={{ width: 72, height: 72 }}
+              />
+            ) : null}
+            <Box>
+              <Typography variant="h3" component="div">
+                {currentWeather.temperatureC}°C / {currentWeather.temperatureF}°F
+              </Typography>
+              <Typography variant="subtitle1" color="text.secondary">
+                {currentWeather.summary}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                更新時間：{currentWeather.date}
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            尚未取得 {selectedCity} 的天氣資料。
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+CurrentWeatherCard.propTypes = {
+  selectedCity: PropTypes.string.isRequired,
+  currentWeather: PropTypes.shape({
+    date: PropTypes.string,
+    summary: PropTypes.string,
+    temperatureC: PropTypes.number,
+    temperatureF: PropTypes.number,
+    icon: PropTypes.string
+  }),
+  isLoadingCurrent: PropTypes.bool.isRequired,
+  errorCurrent: PropTypes.string
+};
+
+CurrentWeatherCard.defaultProps = {
+  currentWeather: null,
+  errorCurrent: null
+};
+
+export default function WeatherDashboard({
+  forecast,
+  metrics,
+  isLoading,
+  error,
+  selectedCity,
+  currentWeather,
+  isLoadingCurrent,
+  errorCurrent
+}) {
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -100,6 +176,12 @@ export default function WeatherDashboard({ forecast, metrics, isLoading, error, 
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <CurrentWeatherCard
+        selectedCity={selectedCity}
+        currentWeather={currentWeather}
+        isLoadingCurrent={isLoadingCurrent}
+        errorCurrent={errorCurrent}
+      />
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <MetricCard title="平均溫度" value={metrics.averageC} suffix="°C" />
@@ -152,10 +234,16 @@ WeatherDashboard.propTypes = {
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
   error: PropTypes.string,
-  selectedCity: PropTypes.string
+  selectedCity: PropTypes.string,
+  currentWeather: CurrentWeatherCard.propTypes.currentWeather,
+  isLoadingCurrent: PropTypes.bool,
+  errorCurrent: PropTypes.string
 };
 
 WeatherDashboard.defaultProps = {
   error: null,
-  selectedCity: ''
+  selectedCity: '',
+  currentWeather: CurrentWeatherCard.defaultProps.currentWeather,
+  isLoadingCurrent: false,
+  errorCurrent: CurrentWeatherCard.defaultProps.errorCurrent
 };
