@@ -32,13 +32,38 @@ namespace OpenWeatherApi.Services
             var weather = weatherArr[0];
             var dt = root.GetProperty("dt").GetInt64();
             var date = DateTimeOffset.FromUnixTimeSeconds(dt).DateTime;
+            var cloudiness = root.GetProperty("clouds").GetProperty("all").GetInt32();
+            double? uvIndex = null;
+
+            if (root.TryGetProperty("coord", out var coord))
+            {
+                var lat = coord.GetProperty("lat").GetDouble();
+                var lon = coord.GetProperty("lon").GetDouble();
+
+                var uvUrl = $"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={_apiKey}&units=metric&lang=zh_tw";
+                var uvResponse = await _httpClient.GetAsync(uvUrl);
+
+                if (uvResponse.IsSuccessStatusCode)
+                {
+                    var uvJson = await uvResponse.Content.ReadAsStringAsync();
+                    using var uvDoc = System.Text.Json.JsonDocument.Parse(uvJson);
+
+                    if (uvDoc.RootElement.TryGetProperty("current", out var current) &&
+                        current.TryGetProperty("uvi", out var uviElement))
+                    {
+                        uvIndex = uviElement.GetDouble();
+                    }
+                }
+            }
             return new
             {
                 date = date.ToString("yyyy-MM-dd"),
                 temperatureC = main.GetProperty("temp").GetDouble(),
                 temperatureF = Math.Round(main.GetProperty("temp").GetDouble() * 9 / 5 + 32, 1),
                 summary = weather.GetProperty("description").GetString(),
-                icon = weather.GetProperty("icon").GetString()
+                icon = weather.GetProperty("icon").GetString(),
+                cloudiness,
+                uvIndex
             };
         }
 
