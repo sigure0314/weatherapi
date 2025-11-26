@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { get } from '../utils/apiClient.js';
 
 function parseForecast(data = []) {
@@ -44,28 +44,8 @@ export default function useWeatherForecast(city) {
     };
   }, [city]);
 
-  const metrics = useMemo(() => {
-    if (!forecast.length) {
-      return {
-        averageC: 0,
-        highestC: 0,
-        lowestC: 0
-      };
-    }
-
-    const temps = forecast.map((item) => item.temperatureC);
-    const sum = temps.reduce((acc, value) => acc + value, 0);
-
-    return {
-      averageC: Math.round((sum / temps.length) * 10) / 10,
-      highestC: Math.max(...temps),
-      lowestC: Math.min(...temps)
-    };
-  }, [forecast]);
-
   return {
     forecast,
-    metrics,
     isLoading,
     error
   };

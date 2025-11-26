@@ -5,36 +5,8 @@ import {
   CardContent,
   CircularProgress,
   Divider,
-  Grid,
   Typography
 } from '@mui/material';
-
-function MetricCard({ title, value, suffix }) {
-  return (
-    <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-      <CardContent>
-        <Typography variant="subtitle1" color="text.secondary">
-          {title}
-        </Typography>
-        <Typography variant="h3" sx={{ mt: 1 }}>
-          {value}
-          {suffix}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
-MetricCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  suffix: PropTypes.string
-};
-
-MetricCard.defaultProps = {
-  suffix: ''
-};
-
 
 const forecastItemPropType = PropTypes.shape({
   date: PropTypes.string.isRequired,
@@ -115,6 +87,18 @@ function CurrentWeatherCard({ selectedCity, currentWeather, isLoadingCurrent, er
               <Typography variant="body2" color="text.secondary">
                 更新時間：{currentWeather.date}
               </Typography>
+              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mt: 1 }}>
+                {typeof currentWeather.cloudiness === 'number' && (
+                  <Typography variant="body2" color="text.secondary">
+                    雲量：{currentWeather.cloudiness}%
+                  </Typography>
+                )}
+                {typeof currentWeather.uvIndex === 'number' && (
+                  <Typography variant="body2" color="text.secondary">
+                    紫外線指數：{currentWeather.uvIndex}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Box>
         ) : (
@@ -134,7 +118,9 @@ CurrentWeatherCard.propTypes = {
     summary: PropTypes.string,
     temperatureC: PropTypes.number,
     temperatureF: PropTypes.number,
-    icon: PropTypes.string
+    icon: PropTypes.string,
+    cloudiness: PropTypes.number,
+    uvIndex: PropTypes.number
   }),
   isLoadingCurrent: PropTypes.bool.isRequired,
   errorCurrent: PropTypes.string
@@ -147,7 +133,6 @@ CurrentWeatherCard.defaultProps = {
 
 export default function WeatherDashboard({
   forecast,
-  metrics,
   isLoading,
   error,
   selectedCity,
@@ -182,17 +167,6 @@ export default function WeatherDashboard({
         isLoadingCurrent={isLoadingCurrent}
         errorCurrent={errorCurrent}
       />
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <MetricCard title="平均溫度" value={metrics.averageC} suffix="°C" />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <MetricCard title="最高溫" value={metrics.highestC} suffix="°C" />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <MetricCard title="最低溫" value={metrics.lowestC} suffix="°C" />
-        </Grid>
-      </Grid>
 
       <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
         <Box sx={{ p: 3 }}>
@@ -227,11 +201,6 @@ export default function WeatherDashboard({
 
 WeatherDashboard.propTypes = {
   forecast: PropTypes.arrayOf(forecastItemPropType).isRequired,
-  metrics: PropTypes.shape({
-    averageC: PropTypes.number.isRequired,
-    highestC: PropTypes.number.isRequired,
-    lowestC: PropTypes.number.isRequired
-  }).isRequired,
   isLoading: PropTypes.bool.isRequired,
   error: PropTypes.string,
   selectedCity: PropTypes.string,
