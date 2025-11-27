@@ -51,7 +51,7 @@ const SolarList: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await getSolarPanels();
+      const data = await getSolarPanels();
       setPanels(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load solar panels');
@@ -71,7 +71,7 @@ const SolarList: React.FC = () => {
 
   const handleEdit = async (panelId: number) => {
     try {
-      const { data } = await getSolarPanel(panelId);
+      const data = await getSolarPanel(panelId);
       setEditingPanel(data);
       setDialogOpen(true);
     } catch (err: unknown) {

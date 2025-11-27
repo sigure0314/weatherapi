@@ -17,18 +17,11 @@ import {
   Typography
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import CloudIcon from '@mui/icons-material/Cloud';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 260;
 
-const navItems = [
-  { label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
-  { label: 'Weather', icon: <CloudIcon fontSize="small" /> }
-];
-
-export default function MainLayout({ children }) {
+export default function MainLayout({ children, navItems, activeItem, onNavSelect }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -49,7 +42,21 @@ export default function MainLayout({ children }) {
       <List sx={{ flexGrow: 1 }}>
         {navItems.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              selected={activeItem === item.key}
+              onClick={() => {
+                setMobileOpen(false);
+                onNavSelect?.(item.key);
+              }}
+              sx={{
+                '&.Mui-selected': {
+                  bgcolor: 'action.selected',
+                  '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                    color: 'primary.main'
+                  }
+                }
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
@@ -147,5 +154,12 @@ export default function MainLayout({ children }) {
 }
 
 MainLayout.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  navItems: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    icon: PropTypes.node.isRequired
+  })).isRequired,
+  activeItem: PropTypes.string,
+  onNavSelect: PropTypes.func
 };
