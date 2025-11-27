@@ -31,6 +31,7 @@ import {
 } from '../../api/solarApi';
 import SolarFormDialog from './SolarFormDialog';
 import { SolarPanel, SolarStatus } from '../../types/solar';
+import { solarDemoPanels } from '../../constants/solarDemoData';
 
 const statusColor: Record<SolarStatus, 'success' | 'warning' | 'error'> = {
   [SolarStatus.NORMAL]: 'success',
@@ -52,9 +53,19 @@ const SolarList: React.FC = () => {
     setError(null);
     try {
       const data = await getSolarPanels();
-      setPanels(data);
+      if (!data.length) {
+        setError('No solar data from server. Showing demo data.');
+        setPanels(solarDemoPanels);
+      } else {
+        setPanels(data);
+      }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load solar panels');
+      setPanels(solarDemoPanels);
+      setError(
+        err instanceof Error
+          ? `${err.message} Showing demo data.`
+          : 'Failed to load solar panels. Showing demo data.'
+      );
     } finally {
       setLoading(false);
     }
@@ -130,50 +141,54 @@ const SolarList: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
               <CircularProgress />
             </Box>
-          ) : error ? (
-            <Typography color="error">{error}</Typography>
-          ) : formattedRows.length === 0 ? (
-            <Typography color="text.secondary">No solar panels available.</Typography>
           ) : (
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Voltage (V)</TableCell>
-                  <TableCell>Current (A)</TableCell>
-                  <TableCell>Watt (W)</TableCell>
-                  <TableCell>Temperature (°C)</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {formattedRows.map(panel => (
-                  <TableRow key={panel.id} hover>
-                    <TableCell>{panel.name}</TableCell>
-                    <TableCell>{panel.voltage}</TableCell>
-                    <TableCell>{panel.current}</TableCell>
-                    <TableCell>{panel.watt}</TableCell>
-                    <TableCell>{panel.temperature}</TableCell>
-                    <TableCell>
-                      <Chip label={panel.status} color={statusColor[panel.status]} size="small" />
-                    </TableCell>
-                    <TableCell>{panel.lastUpdatedDisplay}</TableCell>
-                    <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <IconButton color="primary" onClick={() => handleEdit(panel.id)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(panel)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {error && <Typography sx={{ color: 'warning.main', mb: 2 }}>{error}</Typography>}
+
+              {formattedRows.length === 0 ? (
+                <Typography color="text.secondary">No solar panels available.</Typography>
+              ) : (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Voltage (V)</TableCell>
+                      <TableCell>Current (A)</TableCell>
+                      <TableCell>Watt (W)</TableCell>
+                      <TableCell>Temperature (°C)</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Last Updated</TableCell>
+                      <TableCell align="right">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formattedRows.map(panel => (
+                      <TableRow key={panel.id} hover>
+                        <TableCell>{panel.name}</TableCell>
+                        <TableCell>{panel.voltage}</TableCell>
+                        <TableCell>{panel.current}</TableCell>
+                        <TableCell>{panel.watt}</TableCell>
+                        <TableCell>{panel.temperature}</TableCell>
+                        <TableCell>
+                          <Chip label={panel.status} color={statusColor[panel.status]} size="small" />
+                        </TableCell>
+                        <TableCell>{panel.lastUpdatedDisplay}</TableCell>
+                        <TableCell align="right">
+                          <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <IconButton color="primary" onClick={() => handleEdit(panel.id)}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton color="error" onClick={() => handleDelete(panel)}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

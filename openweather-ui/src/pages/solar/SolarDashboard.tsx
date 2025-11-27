@@ -4,6 +4,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SolarPowerIcon from '@mui/icons-material/SolarPower';
 import { Box, Card, CardContent, CircularProgress, Grid, Theme, Typography } from '@mui/material';
 import { getSolarPanels } from '../../api/solarApi';
+import { solarDemoPanels } from '../../constants/solarDemoData';
 import { SolarPanel, SolarStatus } from '../../types/solar';
 
 type MetricCardProps = {
@@ -49,9 +50,19 @@ const SolarDashboard: React.FC = () => {
       setError(null);
       try {
         const data = await getSolarPanels();
-        setPanels(data);
+        if (!data.length) {
+          setError('No solar data from server. Showing demo data.');
+          setPanels(solarDemoPanels);
+        } else {
+          setPanels(data);
+        }
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Failed to load solar panels');
+        setPanels(solarDemoPanels);
+        setError(
+          err instanceof Error
+            ? `${err.message} Showing demo data.`
+            : 'Failed to load solar panels. Showing demo data.'
+        );
       } finally {
         setLoading(false);
       }
@@ -82,34 +93,42 @@ const SolarDashboard: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
       ) : (
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={4}>
-            <MetricCard
-              title="Total Panels"
-              value={total}
-              icon={<SolarPowerIcon color="primary" fontSize="large" />}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <MetricCard
-              title="Warning Panels"
-              value={warningCount}
-              color={(theme: Theme) => theme.palette.warning.main}
-              icon={<WarningAmberIcon color="inherit" fontSize="large" />}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <MetricCard
-              title="Error Panels"
-              value={errorCount}
-              color={(theme: Theme) => theme.palette.error.main}
-              icon={<ErrorOutlineIcon color="inherit" fontSize="large" />}
-            />
-          </Grid>
-        </Grid>
+        <>
+          {error && (
+            <Typography sx={{ color: 'warning.main', mb: 2 }}>{error}</Typography>
+          )}
+
+          {panels.length === 0 ? (
+            <Typography color="text.secondary">No solar panels available.</Typography>
+          ) : (
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <MetricCard
+                  title="Total Panels"
+                  value={total}
+                  icon={<SolarPowerIcon color="primary" fontSize="large" />}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <MetricCard
+                  title="Warning Panels"
+                  value={warningCount}
+                  color={(theme: Theme) => theme.palette.warning.main}
+                  icon={<WarningAmberIcon color="inherit" fontSize="large" />}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <MetricCard
+                  title="Error Panels"
+                  value={errorCount}
+                  color={(theme: Theme) => theme.palette.error.main}
+                  icon={<ErrorOutlineIcon color="inherit" fontSize="large" />}
+                />
+              </Grid>
+            </Grid>
+          )}
+        </>
       )}
     </Box>
   );
