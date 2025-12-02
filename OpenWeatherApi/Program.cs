@@ -5,7 +5,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // 註冊 OpenWeatherService 與 HttpClient
 builder.Services.AddHttpClient<OpenWeatherApi.Services.OpenWeatherService>();
-var origins = new[] { "https://weatherapi-swart-mu.vercel.app","https://silver-capybara-wxjw6j7vjvj25j4p-5173.app.github.dev", "http://localhost:5173" /* Vite dev */ };
+var origins = new[] { "https://weatherapi-co9llag32-sigurelees-projects.vercel.app","https://weatherapi-swart-mu.vercel.app","https://silver-capybara-wxjw6j7vjvj25j4p-5173.app.github.dev", "http://localhost:5173" /* Vite dev */ };
 builder.Services.AddCors(p => p.AddPolicy("AllowFrontend", policy =>
 {
     policy.WithOrigins(origins)
